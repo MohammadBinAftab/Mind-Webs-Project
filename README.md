@@ -202,31 +202,6 @@ const response = await fetch(
 - **Consistent margins**: 16px, 24px, 32px
 - **Component padding**: 12px, 16px, 24px
 
-## 🚀 Deployment
-
-### Netlify (Recommended)
-
-1. **Build the project**
-   ```bash
-   npm run build
-   ```
-
-2. **Deploy to Netlify**
-   - Connect your GitHub repository
-   - Set build command: `npm run build`
-   - Set publish directory: `out`
-
-### Vercel
-
-1. **Install Vercel CLI**
-   ```bash
-   npm i -g vercel
-   ```
-
-2. **Deploy**
-   ```bash
-   vercel --prod
-   ```
 
 ## 🧪 Development
 
@@ -254,21 +229,3 @@ The project maintains high code quality through:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Open-Meteo** for providing free weather data API
-- **OpenStreetMap** contributors for map tiles
-- **Shadcn** for the excellent UI component library
-- **Vercel** team for Next.js framework
-
-## 📞 Support
-
-For support, please open an issue on GitHub or contact the development team.
-
----
-
-**Built with ❤️ using Next.js, TypeScript, and modern web technologies.**
