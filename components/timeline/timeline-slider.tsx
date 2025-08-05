@@ -1,12 +1,12 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import { Range } from 'react-range';
 import { format, addHours, subDays, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Play, Pause, RotateCcw, Clock } from 'lucide-react';
 import { useDashboardStore } from '@/store/dashboard-store';
-import React, { useEffect, useState } from 'react';
 
 export function TimelineSlider() {
   const {
@@ -18,44 +18,29 @@ export function TimelineSlider() {
     updatePolygonColors,
   } = useDashboardStore();
 
-  // Create 30-day window (15 days before and after today)
   const today = new Date();
   const startDate = subDays(today, 15);
   const endDate = addDays(today, 15);
-  
-  // Convert to hours for slider
-  const totalHours = 30 * 24; // 30 days * 24 hours
-  const TimeComponent = () => {
-  const [time, setTime] = useState<string | null>(null);
+  const totalHours = 30 * 24;
+  const startTimestamp = startDate.getTime();
 
-  useEffect(() => {
-    setTime(new Date().toLocaleTimeString());
-  }, []);
+  const getHourFromValue = (value: number): Date => {
+    return new Date(startTimestamp + value * 60 * 60 * 1000);
+  };
 
-  if (!time) return null; // or a fallback
-
-  return <div>{time}</div>;
-};
-  //const startTimestamp = startDate.getTime();
-  
-  //const getHourFromValue = (value: number): Date => {
-   // return new Date(startTimestamp + value * 60 * 60 * 1000);
- // };
-
-  //const getValueFromHour = (date: Date): number => {
-    //return Math.floor((date.getTime() - startTimestamp) / (60 * 60 * 1000));
-  //};
+  const getValueFromHour = (date: Date): number => {
+    return Math.floor((date.getTime() - startTimestamp) / (60 * 60 * 1000));
+  };
 
   const [sliderValues, setSliderValues] = useState([
-    getValueFromHour(timeline.selectedTime)
+    getValueFromHour(timeline.selectedTime),
   ]);
 
   const [rangeValues, setRangeValues] = useState([
     getValueFromHour(timeline.startTime || subDays(today, 1)),
-    getValueFromHour(timeline.endTime || addDays(today, 1))
+    getValueFromHour(timeline.endTime || addDays(today, 1)),
   ]);
 
-  // Auto-play functionality
   useEffect(() => {
     if (!timeline.isPlaying) return;
 
@@ -64,15 +49,15 @@ export function TimelineSlider() {
         const currentValue = sliderValues[0];
         const nextValue = (currentValue + 1) % totalHours;
         const nextTime = getHourFromValue(nextValue);
-        
+
         setSliderValues([nextValue]);
         setSelectedTime(nextTime);
         updatePolygonColors();
       }
-    }, 200); // Update every 200ms for smooth animation
+    }, 200);
 
     return () => clearInterval(interval);
-  }, [timeline.isPlaying, timeline.mode, sliderValues, totalHours]);
+  }, [timeline.isPlaying, timeline.mode, sliderValues]);
 
   const handleSingleSliderChange = (values: number[]) => {
     const newTime = getHourFromValue(values[0]);
@@ -111,7 +96,7 @@ export function TimelineSlider() {
               <Clock className="w-5 h-5 text-blue-600" />
               <h3 className="text-lg font-semibold text-gray-900">Timeline Control</h3>
             </div>
-            
+
             <div className="flex bg-gray-100 rounded-lg p-1">
               <Button
                 variant={timeline.mode === 'single' ? 'default' : 'ghost'}
@@ -142,7 +127,7 @@ export function TimelineSlider() {
               <RotateCcw className="w-4 h-4" />
               Now
             </Button>
-            
+
             {timeline.mode === 'single' && (
               <Button
                 variant={timeline.isPlaying ? 'secondary' : 'default'}
@@ -166,10 +151,12 @@ export function TimelineSlider() {
           <div className="flex justify-between text-sm text-gray-600">
             <span>{format(startDate, 'MMM dd, yyyy')}</span>
             <span className="font-medium text-gray-900">
-              {timeline.mode === 'single' 
+              {timeline.mode === 'single'
                 ? format(timeline.selectedTime, 'MMM dd, yyyy HH:mm')
-                : `${format(timeline.startTime || startDate, 'MMM dd HH:mm')} - ${format(timeline.endTime || endDate, 'MMM dd HH:mm')}`
-              }
+                : `${format(timeline.startTime || startDate, 'MMM dd HH:mm')} - ${format(
+                    timeline.endTime || endDate,
+                    'MMM dd HH:mm'
+                  )}`}
             </span>
             <span>{format(endDate, 'MMM dd, yyyy')}</span>
           </div>
@@ -240,7 +227,6 @@ export function TimelineSlider() {
                   />
                 )}
               />
-              
               <div className="flex justify-between mt-2 text-xs text-gray-500">
                 <span>{formatSliderValue(rangeValues[0])}</span>
                 <span>{formatSliderValue(rangeValues[1])}</span>
@@ -252,7 +238,7 @@ export function TimelineSlider() {
         {/* Hour markers */}
         <div className="flex justify-between text-xs text-gray-400 px-4">
           {Array.from({ length: 7 }, (_, i) => {
-            const dayOffset = (i - 3) * 5; // Show every 5 days
+            const dayOffset = (i - 3) * 5;
             const markerDate = addDays(today, dayOffset);
             return (
               <span key={i} className="text-center">
