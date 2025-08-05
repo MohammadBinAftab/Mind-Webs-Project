@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Play, Pause, RotateCcw, Clock } from 'lucide-react';
 import { useDashboardStore } from '@/store/dashboard-store';
+import { useEffect, useState } from 'react';
 
 export function TimelineSlider() {
   const {
@@ -25,15 +26,26 @@ export function TimelineSlider() {
   
   // Convert to hours for slider
   const totalHours = 30 * 24; // 30 days * 24 hours
-  const startTimestamp = startDate.getTime();
-  
-  const getHourFromValue = (value: number): Date => {
-    return new Date(startTimestamp + value * 60 * 60 * 1000);
-  };
+  const TimeComponent = () => {
+  const [time, setTime] = useState<string | null>(null);
 
-  const getValueFromHour = (date: Date): number => {
-    return Math.floor((date.getTime() - startTimestamp) / (60 * 60 * 1000));
-  };
+  useEffect(() => {
+    setTime(new Date().toLocaleTimeString());
+  }, []);
+
+  if (!time) return null; // or a fallback
+
+  return <div>{time}</div>;
+};
+  //const startTimestamp = startDate.getTime();
+  
+  //const getHourFromValue = (value: number): Date => {
+   // return new Date(startTimestamp + value * 60 * 60 * 1000);
+ // };
+
+  //const getValueFromHour = (date: Date): number => {
+    //return Math.floor((date.getTime() - startTimestamp) / (60 * 60 * 1000));
+  //};
 
   const [sliderValues, setSliderValues] = useState([
     getValueFromHour(timeline.selectedTime)
