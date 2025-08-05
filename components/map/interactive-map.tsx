@@ -1,12 +1,20 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Polygon, Tooltip, useMapEvents, useMap } from 'react-leaflet';
+import {
+  MapContainer,
+  TileLayer,
+  Polygon,
+  Tooltip,
+  useMapEvents,
+  useMap,
+} from 'react-leaflet';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MapPin, Pencil, Home, Square } from 'lucide-react';
 import { useDashboardStore } from '@/store/dashboard-store';
 import 'leaflet/dist/leaflet.css';
+import type { LeafletMouseEvent } from 'leaflet';
 
 // Map event handler component
 function MapEventHandler() {
@@ -18,32 +26,29 @@ function MapEventHandler() {
     dataSources,
   } = useDashboardStore();
 
-  const mapInstance = useMap();
-
   useMapEvents({
-    click: (e) => {
+    click: (e: LeafletMouseEvent) => {
       if (!map.drawingMode) return;
 
       const newCoord: [number, number] = [e.latlng.lat, e.latlng.lng];
       const updatedPolygon = [...map.currentPolygon, newCoord];
 
-      // Limit to 12 points maximum
       if (updatedPolygon.length <= 12) {
         setCurrentPolygon(updatedPolygon);
       }
 
-      // Auto-complete polygon if we have enough points and user clicks near the start
       if (updatedPolygon.length >= 3) {
         const firstPoint = updatedPolygon[0];
         const distance = Math.sqrt(
-          Math.pow(e.latlng.lat - firstPoint[0], 2) + 
-          Math.pow(e.latlng.lng - firstPoint[1], 2)
+          Math.pow(e.latlng.lat - firstPoint[0], 2) +
+            Math.pow(e.latlng.lng - firstPoint[1], 2)
         );
 
-        // If clicked near the starting point, complete the polygon
-        if (distance < 0.001 && updatedPolygon.length >= 3) {
+        if (distance < 0.001) {
           const activeDataSource = dataSources.find(ds => ds.enabled) || dataSources[0];
           addPolygon(updatedPolygon, activeDataSource.id);
+          setDrawingMode(false);
+          setCurrentPolygon([]);
         }
       }
     },
@@ -54,7 +59,7 @@ function MapEventHandler() {
 
 // Map center controller
 function MapController() {
-  const { map, setMapCenter, setMapZoom } = useDashboardStore();
+  const { map } = useDashboardStore();
   const mapInstance = useMap();
 
   useEffect(() => {
@@ -64,6 +69,7 @@ function MapController() {
   return null;
 }
 
+// Main map component
 export function InteractiveMap() {
   const {
     map,
@@ -92,11 +98,14 @@ export function InteractiveMap() {
     if (map.currentPolygon.length >= 3) {
       const activeDataSource = dataSources.find(ds => ds.enabled) || dataSources[0];
       addPolygon(map.currentPolygon, activeDataSource.id);
+      setDrawingMode(false);
+      setCurrentPolygon([]);
     }
   };
 
   const getPolygonOpacity = (polygonId: string) => {
-    return polygons.find(p => p.id === polygonId)?.value !== undefined ? 0.7 : 0.4;
+    const polygon = polygons.find(p => p.id === polygonId);
+    return polygon?.value !== undefined ? 0.7 : 0.4;
   };
 
   return (
@@ -122,7 +131,7 @@ export function InteractiveMap() {
               </>
             )}
           </Button>
-          
+
           {map.drawingMode && map.currentPolygon.length >= 3 && (
             <Button
               variant="outline"
@@ -171,7 +180,7 @@ export function InteractiveMap() {
               Polygons ({polygons.length})
             </h4>
             <div className="space-y-2 max-h-32 overflow-y-auto">
-              {polygons.map((polygon) => (
+              {polygons.map(polygon => (
                 <div
                   key={polygon.id}
                   className="flex items-center justify-between p-2 bg-white rounded border"
@@ -213,15 +222,15 @@ export function InteractiveMap() {
         zoomControl={true}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        
+
         <MapEventHandler />
         <MapController />
 
-        {/* Render existing polygons */}
-        {polygons.map((polygon) => (
+        {/* Existing polygons */}
+        {polygons.map(polygon => (
           <Polygon
             key={polygon.id}
             positions={polygon.coordinates}
@@ -247,8 +256,8 @@ export function InteractiveMap() {
           </Polygon>
         ))}
 
-        {/* Render current drawing polygon */}
-        {map.drawingMode && map.currentPolygon.length >= 3 && (
+        {/* Drawing polygon */}
+        {map.drawingMode && map.currentPolygon.length >= 2 && (
           <Polygon
             positions={map.currentPolygon}
             pathOptions={{
