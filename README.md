@@ -2,7 +2,6 @@
 
 A sophisticated web application for interactive geospatial data analysis with temporal controls, polygon drawing tools, and real-time weather data visualization.
 
-![Dashboard Preview](https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=400&fit=crop)
 
 ## 🌟 Features
 
