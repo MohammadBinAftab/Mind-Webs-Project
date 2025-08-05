@@ -1,13 +1,12 @@
 import './globals.css';
 import type { Metadata } from 'next';
 
-import localFont from 'next/font/local'
+import { Inter } from 'next/font/google'
 
-const inter = localFont({
-  src: './fonts/Inter-Regular.woff2',
+const inter = Inter({
+  subsets: ['latin'],
   display: 'swap',
 })
-
 
 export const metadata: Metadata = {
   title: 'Geospatial Analytics Dashboard',
