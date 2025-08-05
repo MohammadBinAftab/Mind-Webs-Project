@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { Range } from 'react-range';
 import { format, addHours, subDays, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Play, Pause, RotateCcw, Clock } from 'lucide-react';
 import { useDashboardStore } from '@/store/dashboard-store';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export function TimelineSlider() {
   const {
